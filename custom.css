@@ -1,0 +1,66 @@
+:root {
+  --qa-primary: #0d6efd;
+  --qa-muted: #6c757d;
+  --qa-bg: #f8f9fa;
+}
+
+body {
+  background: var(--qa-bg);
+}
+
+.header-title {
+  font-weight: 700;
+}
+
+.action-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1010;
+  background: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.summary-card {
+  border-left: 4px solid var(--qa-primary);
+}
+
+.case-card {
+  border-left: 4px solid #dee2e6;
+}
+
+.case-card.status-aprovado {
+  border-left-color: #198754;
+}
+
+.case-card.status-reprovado {
+  border-left-color: #dc3545;
+}
+
+.case-card.status-pendente {
+  border-left-color: #ffc107;
+}
+
+.case-card.status-invalido {
+  border-left-color: #6c757d;
+}
+
+.evidence-thumb {
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.badge-status {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+textarea.form-control {
+  min-height: 120px;
+}
+
+.report-output {
+  min-height: 280px;
+  font-family: "Courier New", monospace;
+}
