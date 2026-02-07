@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controle de Plano de Testes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="custom.css" rel="stylesheet">
+</head>
+<body>
+  <header class="py-4 bg-white shadow-sm">
+    <div class="container">
+      <h1 class="header-title h3 mb-0">Controle de Plano de Testes (QA/Dev)</h1>
+      <p class="text-muted mb-0">Aplicação single-page para controle completo de casos de teste.</p>
+    </div>
+  </header>
+
+  <div class="action-bar py-3">
+    <div class="container d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-between">
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-primary" id="btnNewCase">Novo Caso</button>
+        <button class="btn btn-outline-secondary" id="btnExportJson">Exportar JSON</button>
+        <button class="btn btn-outline-secondary" id="btnOpenImport">Importar JSON</button>
+        <button class="btn btn-outline-primary" id="btnOpenReport">Exportar Relatório</button>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="filterFailed">
+          <label class="form-check-label" for="filterFailed">Mostrar apenas reprovados</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container py-4">
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="text-muted">Total de Casos</div>
+            <div class="display-6" id="summaryTotal">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="text-muted">Aprovados</div>
+            <div class="display-6 text-success" id="summaryApproved">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card summary-card">
+          <div class="card-body">
+            <div class="text-muted">Reprovados</div>
+            <div class="display-6 text-danger" id="summaryFailed">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2 class="h5 mb-3">Casos de Teste</h2>
+      <div id="caseList"></div>
+    </section>
+  </main>
+
+  <div class="modal fade" id="caseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <form id="caseForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Caso de Teste</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="caseId">
+            <div class="row g-3">
+              <div class="col-12 col-lg-6">
+                <label class="form-label" for="caseTitle">Título</label>
+                <input class="form-control" id="caseTitle" required>
+              </div>
+              <div class="col-12 col-lg-6">
+                <label class="form-label" for="caseType">Tipo de Teste</label>
+                <input class="form-control" id="caseType" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="caseDescription">Descrição</label>
+                <textarea class="form-control" id="caseDescription" required></textarea>
+              </div>
+              <div class="col-12 col-lg-3">
+                <label class="form-label" for="caseStatus">Status</label>
+                <select class="form-select" id="caseStatus" required>
+                  <option value="pendente">Pendente</option>
+                  <option value="aprovado">Aprovado</option>
+                  <option value="reprovado">Reprovado</option>
+                  <option value="invalido">Inválido</option>
+                </select>
+              </div>
+              <div class="col-12 col-lg-3">
+                <label class="form-label" for="casePriority">Prioridade</label>
+                <select class="form-select" id="casePriority" required>
+                  <option value="baixa">Baixa</option>
+                  <option value="media">Média</option>
+                  <option value="alta">Alta</option>
+                  <option value="critica">Crítica</option>
+                </select>
+              </div>
+              <div class="col-12 col-lg-6">
+                <label class="form-label" for="caseResponsible">Responsável</label>
+                <input class="form-control" id="caseResponsible" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="caseNotes">Observações</label>
+                <textarea class="form-control" id="caseNotes"></textarea>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row g-3 align-items-end">
+              <div class="col-12 col-lg-3">
+                <label class="form-label" for="evidenceType">Tipo de evidência</label>
+                <select class="form-select" id="evidenceType">
+                  <option value="image">Imagem</option>
+                  <option value="video">Vídeo</option>
+                </select>
+              </div>
+              <div class="col-12 col-lg-4">
+                <label class="form-label" for="evidenceDescription">Descrição</label>
+                <input class="form-control" id="evidenceDescription" placeholder="Ex: Bug na tela inicial">
+              </div>
+              <div class="col-12 col-lg-3">
+                <label class="form-label" for="evidenceFile">Arquivo</label>
+                <input class="form-control" id="evidenceFile" type="file" accept="image/*,video/*">
+              </div>
+              <div class="col-12 col-lg-2">
+                <button type="button" class="btn btn-outline-primary w-100" id="btnAddEvidence">Adicionar</button>
+              </div>
+            </div>
+
+            <div class="mt-3" id="evidenceList"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="evidenceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="evidenceModalTitle">Evidência</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body" id="evidenceModalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Importar JSON</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="importFile">Arquivo JSON</label>
+            <input class="form-control" id="importFile" type="file" accept="application/json">
+          </div>
+          <div>
+            <label class="form-label" for="importText">Ou cole o JSON</label>
+            <textarea class="form-control" id="importText" placeholder="Cole aqui o JSON exportado"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnImportJson">Importar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Relatório para e-mail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control report-output" id="reportOutput" readonly></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="custom.js"></script>
+</body>
+</html>
