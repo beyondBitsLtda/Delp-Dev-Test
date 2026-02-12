@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap (visual base) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <!-- jQuery + jQuery UI -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <!-- Mustache -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/mustache.min.js"></script>
+  <!-- SweetAlert2 + XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Seus CSS -->
+  <link rel="stylesheet" href="CSS/style_modelo.css">
+</head>
+<body class="body">
+  <!-- Formulário com campos ocultos e header -->
+  <form name="form" role="form">
+    <input id="ATIVIDADE" name="ATIVIDADE" type="hidden"> 
+    <input id="NUMPROCESSO" name="NUMPROCESSO" type="hidden">
+    <input id="SOLICITANTE" name="SOLICITANTE" type="hidden">
+    <input id="IMPORTACAO" name="IMPORTACAO" type="hidden">
+    <input id="USUARIOATUAL" name="USUARIOATUAL" type="hidden">
+    <input id="DESCPROCESSOFLUIG" name="DESCPROCESSOFLUIG" type="hidden" value="Gestão Operacional - Field Service">
+    <input id="EXCLUSIVO1" name="EXCLUSIVO1" type="hidden">
+    <input id="AVISO_INTEGRACAO" name="AVISO_INTEGRACAO" type="hidden">
+    <input id="ANO_COMP" name="ANO_COMP" type="hidden">
+    <input id="COMP" name="COMP" type="hidden">
+    <input id="CHAVE" name="CHAVE" type="hidden">
+
+    <!-- Header com título e botão de ajuda -->
+    <div class="header">
+      <div class="header-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 class="header-title">Delp Dev Test</h1>
+        <!-- 🔹 REMOVIDO style="display:flex;" -->
+        <button type="button" class="btn-help" id="btn-help" onclick="abrirModalAjuda()" 
+                title="Ver regras de validação">
+          <i class="fas fa-question-circle"></i> Ajuda
+        </button>
+      </div>
+    </div>
+
+    <!-- 🔹 REMOVIDO style inline -->
+    <div id="selection-menu" class="initial-setup compact">
+      <div class="form-group">
+        <label for="PROJETO" class="form-label">Selecione o Projeto:</label>
+        <input type="zoom" class="form-control" id="PROJETO" name="PROJETO" data-zoom="{
+                'displayKey':'DESCRICAO_COMPLETA',
+                'datasetId':'dsFormularioPadrao',
+                'maximumSelectionLength':'1',
+                'placeholder':'',
+                'filterValues': 'OPERACAO,consultar,TIPO,Projetos',
+                'fields':[
+                    {
+                        'field':'DESCRICAO_COMPLETA',
+                        'label':'Projeto',
+                        'standard':'true',
+                        'search':'true'
+                    }   
+                ]
+            }">
+        <input type="hidden" id="PROJETO_TESTE" name="PROJETO_TESTE">
+        <div class="start-button-wrapper">
+          <!-- 🔹 ADICIONADO type="button" e event no onclick -->
+          <button type="button" id="start-button" class="btn2 btn-add" onclick="abrirProjeto(event)">Iniciar</button>
+          <button type="button" id="add-button" class="btn2 btn-add-proj" onclick="adicionarProjeto()">Adicionar</button>
+        </div>
+      </div>
+    </div>
+  </form> 
+
+  <!-- Barra de ações - 🔹 REMOVIDO style="display:none;" -->
+  <div class="page-action-bar" id="page-action">
+    <button class="action-btn action-btn--primary" onclick="abrirModalCasoTeste()" id="btnNovoCaso">Novo Caso</button>
+    <button class="action-btn action-btn--secondary" id="btnAdefinir1">A definir</button>
+    <button class="action-btn action-btn--secondary" id="btnAdefinir2">A definir</button>
+    <button class="action-btn action-btn--secondary" id="btnAdefinir3">A definir</button>
+    <button class="action-btn action-btn--secondary" id="btnAdefinir4">A definir</button>
+    <button class="action-btn action-btn--secondary" id="btnAdefinir5">A definir</button>
+  </div>
+
+  <!-- Cards (alinhados com a barra) - 🔹 REMOVIDO style="display:none;" -->
+  <div class="summary-cards-wrap" id="cards">
+    <div class="row g-3 mb-4 summary-cards">
+      <div class="col-12 col-md-4">
+        <div class="summary-card summary-card--default">
+          <div class="summary-card__label">Total de Casos</div>
+          <div class="summary-card__value" id="summaryTotal">2</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="summary-card summary-card--success">
+          <div class="summary-card__label">Aprovados</div>
+          <div class="summary-card__value" id="summaryApproved">0</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="summary-card summary-card--danger">
+          <div class="summary-card__label">Reprovados</div>
+          <div class="summary-card__value" id="summaryFailed">1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajuda - 🔹 REMOVIDO style="display: none;" -->
+  <div id="modal-ajuda" class="modal-ajuda">
+    <div class="modal-ajuda-overlay" onclick="fecharModalAjuda()"></div>
+    <div class="modal-ajuda-content">
+      <div class="modal-ajuda-header">
+        <h2><i class="fas fa-info-circle"></i> Intruções de Uso </h2>
+        <button type="button" class="modal-ajuda-close" onclick="fecharModalAjuda()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-ajuda-body">
+        <!-- Definir cards e subcards sobre instruções de uso nos formulários -->
+      </div>
+      <div class="modal-ajuda-footer">
+        <button type="button" class="btn btn-primary" onclick="fecharModalAjuda()">
+          <i class="fas fa-check"></i> Entendi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Caso Teste -->
+  <div id="modal-caso-teste" class="modal-caso-teste">
+    <div class="modal-caso-teste-overlay" onclick="fecharModalCasoTeste()"></div>
+    <div class="modal-caso-teste-content">
+      <!-- HEADER -->
+      <div class="modal-caso-teste-header">
+        <h2>
+          <i class="fas fa-info-circle"></i>
+          Criar Teste Case
+        </h2>
+        <button type="button" class="modal-caso-teste-close" onclick="fecharModalCasoTeste()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="caseId">
+
+      <!-- BODY -->
+      <div class="modal-caso-teste-body">
+        <div class="modal-form-grid">
+          <!-- TÍTULO -->
+          <div class="field">
+            <label for="caseTitle">Título</label>
+            <input id="caseTitle" class="form-control" required>
+          </div>
+
+          <!-- TIPO DE TESTE -->
+          <div class="field">
+            <label for="caseType">Tipo de Teste</label>
+            <input id="caseType" class="form-control" required>
+          </div>
+
+          <!-- DESCRIÇÃO -->
+          <div class="field field--full">
+            <label for="caseDescription">Descrição</label>
+            <textarea id="caseDescription" class="form-control" required></textarea>
+          </div>
+
+          <!-- STATUS -->
+          <div class="field-group field--full">
+            <label for="caseStatus">Status</label>
+            <select id="caseStatus" class="form-select2" required>
+              <!-- opções -->
+            </select>
+          </div>
+
+          <!-- PRIORIDADE -->
+          <div class="field-group field--full">
+            <label for="casePriority">Prioridade</label>
+            <select id="casePriority" class="form-select2" required>
+              <!-- opções -->
+            </select>
+          </div>
+
+          <!-- RESPONSÁVEL -->
+          <div class="field-group field--full">
+            <label for="caseResponsible">Responsável</label>
+            <input id="caseResponsible" class="form-select2" required>
+          </div>
+
+          <!-- OBSERVAÇÕES -->
+          <div class="field field--full">
+            <label for="caseNotes">Observações</label>
+            <textarea id="caseNotes" class="form-control"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-caso-teste-footer">
+        <button type="button" class="btn btn-primary" onclick="salvarCasoTeste()">
+          <i class="fas fa-check"></i> Salvar
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="fecharModalCasoTeste()">
+          <i class="fas fa-times"></i> Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+   <!-- Modal Criar Projeto -->
+  <div id="modal-Projeto" class="modal-projeto">
+    <div class="modal-projeto-overlay" onclick="fecharModalProjeto()"></div>
+    <div class="modal-projeto-content">
+      <!-- HEADER -->
+      <div class="modal-projeto-header">
+        <h2>
+          <i class="fas fa-info-circle"></i>
+          Adicionar Projeto de Teste
+        </h2>
+        <button type="button" class="modal-projeto-close" onclick="fecharModalProjeto()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="caseId">
+
+      <!-- BODY -->
+      <div class="modal-projeto-body">
+        <div class="modal-form-grid">
+          <!-- TÍTULO -->
+          <div class="field">
+            <label for="caseTitle">Título</label>
+            <input id="caseTitle" class="form-control" required>
+          </div>
+
+          <!-- TIPO DE TESTE -->
+          <div class="field">
+            <label for="caseType">Tipo de Teste</label>
+            <input id="caseType" class="form-control" required>
+          </div>
+
+          <!-- DESCRIÇÃO -->
+          <div class="field field--full">
+            <label for="caseDescription">Descrição</label>
+            <textarea id="caseDescription" class="form-control" required></textarea>
+          </div>
+
+          <!-- STATUS -->
+          <div class="field-group field--full">
+            <label for="caseStatus">Status</label>
+            <select id="caseStatus" class="form-select2" required>
+              <!-- opções -->
+            </select>
+          </div>
+
+          <!-- PRIORIDADE -->
+          <div class="field-group field--full">
+            <label for="casePriority">Prioridade</label>
+            <select id="casePriority" class="form-select2" required>
+              <!-- opções -->
+            </select>
+          </div>
+
+          <!-- RESPONSÁVEL -->
+          <div class="field-group field--full">
+            <label for="caseResponsible">Responsável</label>
+            <input id="caseResponsible" class="form-select2" required>
+          </div>
+
+          <!-- OBSERVAÇÕES -->
+          <div class="field field--full">
+            <label for="caseNotes">Observações</label>
+            <textarea id="caseNotes" class="form-control"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-projeto-footer">
+        <button type="button" class="btn btn-primary" onclick="salvarCasoTeste()">
+          <i class="fas fa-check"></i> Salvar
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="fecharModalProjeto()">
+          <i class="fas fa-times"></i> Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="JS/funcaoAuxiliares.js"></script> 
+  <script src="JS/funcoesPrincipais.js"></script> 
+  <script src="JS/funcaoCasoTeste.js"></script>   
+</body>
+</html>
